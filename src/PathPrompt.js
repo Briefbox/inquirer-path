@@ -32,6 +32,7 @@ declare type KeyPressEvent$Key = {
  * @param {boolean} [question.multi=false] If set to true, the user can enter multiple paths
  * @param {boolean} [question.directoryOnly=false] If set to true, the user can only enter paths to
  * directories
+ * @param {boolean} [question.caseSensitive=false] If set to true, autocompletion will be case-sensitive
  * @param {function} [question.validate]  Receive the user input and should return true if the value
  * is valid or an error message (String) otherwise. If false is returned, a default error message is
  * provided. If question.multi is true, it is called for each path entered by the user.
@@ -75,6 +76,7 @@ export default class PathPrompt extends BasePrompt {
       cwd?: string,
       multi?: boolean,
       directoryOnly?: boolean,
+      caseSensitive?: boolean,
       default?: string,
       validate?: (path: string) => boolean,
       filter?: (path: string) => any,
@@ -94,6 +96,7 @@ export default class PathPrompt extends BasePrompt {
     this.autocomplete = new PathAutocomplete(
       question.cwd || question.default || process.cwd(),
       question.directoryOnly,
+      question.caseSensitive,
     );
     this.renderer = new PathPromptRenderer(
       this.rl,
@@ -246,6 +249,7 @@ export default class PathPrompt extends BasePrompt {
         this.autocomplete = new PathAutocomplete(
           this.autocomplete.getWorkingDirectory().getAbsolutePath(),
           this.autocomplete.isDirectoryOnly(),
+          this.autocomplete.isCaseSensitive(),
         );
         this.renderer.renderNewPrompt(finalAnswer, this.autocomplete);
         return finalAnswer;

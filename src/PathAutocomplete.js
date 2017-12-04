@@ -7,16 +7,18 @@ import Path from './Path';
 /**
  * State machine for a path autocomplete UI.
  * @param {string} cwd - The working directory from which path should be resolved
- * @param {boolean} [directoryOnly=false] - If set to should handle only directories
+ * @param {boolean} [directoryOnly=false] - If set to true, should handle only directories
+ * @param {boolean} [caseSensitive=false] - If set to true, autocompletion will be case-sensitive
  */
 export default class PathAutocomplete {
   cwd: Path;
   directoryOnly: boolean;
+  caseSensitive: boolean;
   path: Path;
   matches: ?Path[];
   matchIndex: number;
 
-  constructor(cwd: string, directoryOnly: boolean = false) {
+  constructor(cwd: string, directoryOnly: boolean = false, caseSensitive: boolean = false) {
     this.cwd = new Path(cwd);
     if (!this.cwd.isExistingDirectory()) {
       throw new Error(`The provided working directory ${cwd} does not exist or is not a directory.`);
@@ -25,6 +27,7 @@ export default class PathAutocomplete {
     this.matches = null;
     this.matchIndex = -1;
     this.directoryOnly = directoryOnly;
+    this.caseSensitive = caseSensitive;
   }
 
   /**
@@ -62,6 +65,13 @@ export default class PathAutocomplete {
    */
   isDirectoryOnly(): boolean {
     return this.directoryOnly;
+  }
+
+  /**
+   * @return True if the autocomplete is case-sensitive
+   */
+  isCaseSensitive(): boolean {
+    return this.caseSensitive;
   }
 
   /**
@@ -180,7 +190,10 @@ export default class PathAutocomplete {
     const prefix = this.path.isDirectory() ? '' : this.path.getBaseName();
     const matches = fs.readdirSync(directory.getAbsolutePath())
       // Filter on the base input name
-      .filter(child => child.startsWith(prefix))
+      .filter(child => this.caseSensitive
+        ? child.startsWith(prefix)
+        : child.toLowerCase().startsWith(prefix.toLowerCase())
+      )
       // Map to Path instances
       .map((name) => {
         const childPath = directory.getRelativePath() + name;
