@@ -106,7 +106,18 @@ export default class PathPromptRenderer {
     const matchIndex = this.autocomplete.getMatchIndex();
     const match = matches[matchIndex];
 
-    return PathPromptRenderer.shortenArray(matches, matchIndex, RANGE_SIZE)
+    const length = matches.length;
+    let min = matchIndex - Math.floor(RANGE_SIZE / 2);
+    let max = matchIndex + Math.ceil(RANGE_SIZE / 2);
+    if (min < 0) {
+      max = Math.min(length, max - min);
+      min = 0;
+    } else if (max >= length) {
+      min = Math.max(0, min - (max - length));
+      max = length;
+    }
+
+    const itemsToRender = matches.slice(min, max)
       .map((potentialPath) => {
         const suffix = (potentialPath.isDirectory() ? path.sep : '');
         if (potentialPath === match) {
@@ -114,8 +125,12 @@ export default class PathPromptRenderer {
         }
         const colorize = potentialPath.isDirectory() ? chalk.red : chalk.green;
         return colorize(potentialPath.getBaseName()) + suffix;
-      })
-      .join('\n');
+      });
+
+    itemsToRender.unshift(min ? `(+ ${min} more above)` : ' ');
+    itemsToRender.push(matches.length - max ? `(+ ${matches.length - max} more below)` : ' ');
+
+    return itemsToRender.join('\n');
   }
 
   /**
@@ -135,30 +150,5 @@ export default class PathPromptRenderer {
     readline.cursorTo(this.rl.output, cursorPosition);
     this.rl.cursor = activeEntry.length;
     this.rl.output.mute();
-  }
-
-  /**
-   * Slice an array around a specific item so that it contains a specific number of elements.
-   * @param items - The array to shorten
-   * @param itemIndex - The index of the item that should be included in the returned slice
-   * @param size - The desired size of the array to be returned
-   * @returns
-   */
-  static shortenArray<T>(
-    items: T[],
-    itemIndex: number,
-    size: number,
-  ): T[] {
-    const length = items.length;
-    let min = itemIndex - Math.floor(size / 2);
-    let max = itemIndex + Math.ceil(size / 2);
-    if (min < 0) {
-      max = Math.min(length, max - min);
-      min = 0;
-    } else if (max >= length) {
-      min = Math.max(0, min - (max - length));
-      max = length;
-    }
-    return items.slice(min, max);
   }
 }
