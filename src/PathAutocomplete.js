@@ -208,11 +208,11 @@ export default class PathAutocomplete {
       })
       // Get rid of non directory if the ShellPath handles directories only
       .filter((child: Path) => !this.directoryOnly || child.isExistingDirectory())
-      // Sort by directory/file and then name
+      // Sort by name
       .sort((child1: Path, child2: Path) => {
-        if (child1.isDirectory() !== child2.isDirectory()) {
-          return child1.isExistingDirectory() ? 1 : -1;
-        }
+        // if (child1.isDirectory() !== child2.isDirectory()) {
+        //   return child1.isExistingDirectory() ? 1 : -1;
+        // }
         return child1.getAbsolutePath().localeCompare(child2.getAbsolutePath());
       });
     if (matches.length === 0) {
