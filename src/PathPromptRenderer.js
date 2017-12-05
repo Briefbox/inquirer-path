@@ -22,10 +22,12 @@ export default class PathPromptRenderer {
     screen: ScreenManager,
     autocomplete: PathAutocomplete,
     message: string,
+    promptPrefix?: string,
   ) {
     this.rl = rl;
     this.screen = screen;
     this.message = message;
+    this.promptPrefix = promptPrefix;
     this.autocomplete = autocomplete;
   }
 
@@ -77,20 +79,29 @@ export default class PathPromptRenderer {
     this.resetCursor();
   }
 
+  buildQuestionLine(): string {
+    return chalk.green('?')
+      + ' '
+      + chalk.bold(this.message)
+      + ' (supports '
+      + chalk.green.bold('tab completion/selection')
+      + ')';
+  }
+
+  buildInputLine(finalAnswer?: string): string {
+    let relativePath = this.autocomplete.getActivePath().getRelativePath();
+    return '  '
+      + chalk.dim(this.promptPrefix || path.join(this.autocomplete.getWorkingDirectory().getBaseName(), '/'))
+      + (finalAnswer ? chalk.cyan(relativePath) : relativePath);
+  }
+
   /**
    * Render the main content of the prompt. The message includes the question and
    * the current response.
    * @param [finalAnswer=null] If present, display the final answer
    */
   buildMainContent(finalAnswer?: string): string {
-    let message = `${chalk.green('?')} ${chalk.bold(this.message)}${chalk.reset(' ')}`;
-    message += chalk.dim(`(${this.autocomplete.getWorkingDirectory().getBaseName()}) `);
-    if (finalAnswer) {
-      message += chalk.cyan(finalAnswer);
-    } else {
-      message += this.autocomplete.getActivePath().getRelativePath();
-    }
-    return message;
+    return this.buildQuestionLine() + '\n' + this.buildInputLine(finalAnswer);
   }
 
   /**
@@ -142,8 +153,8 @@ export default class PathPromptRenderer {
     if (activeEntry === this.rl.line) {
       return;
     }
-    const cursorPosition = (this.autocomplete.getWorkingDirectory().getBaseName().length +
-      this.message.length + activeEntry.length + 6) % this.rl.output.columns;
+
+    const cursorPosition = (this.buildInputLine().length - chalk.dim(' ').length + 1) % this.rl.output.columns;
 
     this.rl.line = activeEntry;
     this.rl.output.unmute();

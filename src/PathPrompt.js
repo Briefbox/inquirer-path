@@ -26,6 +26,7 @@ declare type KeyPressEvent$Key = {
  * @param {object} question
  * @param {string} question.name The name to use when storing the answer in the answers hash.
  * @param {string} question.message The message to display when prompting the user for a path.
+ * @param {string} [question.promptPrefix]
  * @param {string} [question.cwd=process.cwd()] The default working directory from which
  * relative paths are resolved. It is also the default value.
  * @param {string} [question.default=process.cwd()] Same as question.cwd
@@ -73,6 +74,7 @@ export default class PathPrompt extends BasePrompt {
     question: {
       name: string,
       message: string,
+      promptPrefix?: string,
       cwd?: string,
       multi?: boolean,
       directoryOnly?: boolean,
@@ -103,6 +105,7 @@ export default class PathPrompt extends BasePrompt {
       this.screen,
       this.autocomplete,
       this.opt.message,
+      this.opt.promptPrefix,
     );
     this.answerCallback = () => {};
     this.isTryingExit = false;
