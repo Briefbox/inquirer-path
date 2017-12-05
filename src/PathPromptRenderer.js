@@ -134,14 +134,17 @@ export default class PathPromptRenderer {
         if (potentialPath === match) {
           return chalk.black.bgWhite(potentialPath.getBaseName() + suffix);
         }
-        const colorize = potentialPath.isDirectory() ? chalk.red : chalk.green;
+        const colorize = potentialPath.isDirectory() ? chalk.blue.bold : chalk.green;
         return colorize(potentialPath.getBaseName()) + suffix;
       });
 
-    itemsToRender.unshift(min ? `(+ ${min} more above)` : ' ');
-    itemsToRender.push(matches.length - max ? `(+ ${matches.length - max} more below)` : ' ');
+    const separator = chalk.dim(new Array(20).join('─'));
+    // itemsToRender.unshift(min ? chalk.dim(`(+ ${min} more above)`) : ' ');
+    itemsToRender.unshift(separator);
+    itemsToRender.push(matches.length - max ? chalk.dim(`(+ ${matches.length - max} more below)`) : ' ');
+    // itemsToRender.push(separator);
 
-    return itemsToRender.join('\n');
+    return itemsToRender.map(x => '  ' + x).join('\n');
   }
 
   /**
