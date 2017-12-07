@@ -198,7 +198,7 @@ export default class PathAutocomplete {
       .map((name) => {
         const childPath = directory.getRelativePath() + name;
         try {
-          if (fs.statSync(childPath).isDirectory()) {
+          if (fs.statSync(path.join(this.cwd.absolutePath, childPath)).isDirectory()) {
             return new Path(this.cwd, childPath + path.sep);
           }
         } catch (ex) {
