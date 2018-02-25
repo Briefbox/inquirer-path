@@ -3,4 +3,6 @@ docs/
 node_modules/
 npm-debug.log
 .DS_Store
-lib/
+
+# Need to commit `lib` since this forked module will be installed from Github directly, not the npm registry
+# lib/
