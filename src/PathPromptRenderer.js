@@ -83,9 +83,9 @@ export default class PathPromptRenderer {
     return chalk.green('?')
       + ' '
       + chalk.bold(this.message)
-      + ' (supports '
+      + chalk.dim(' (supports ')
       + chalk.green.bold('tab completion/selection')
-      + ')';
+      + chalk.dim(')');
   }
 
   buildInputLine(finalAnswer?: string): string {
